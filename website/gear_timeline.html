@@ -1,104 +1,82 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <meta charset="utf-8">
-
 <title>Gear Timeline</title>
-
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 
 <style>
-
 body {
     font-family: Arial, sans-serif;
     margin: 40px;
     background: white;
 }
-
 #chart {
     width: 100%;
     height: 800px;
 }
-
 </style>
-
 </head>
 
 <body>
 
 <h1>Gear-State Behaviour Timeline</h1>
-
 <div id="chart"></div>
 
 <script>
-
 async function loadRide() {
 
-    const response =
-        await fetch('../website_json/20260513_22862540318.json');
-
+    const response = await fetch('../website_json/20260513_22862540318.json');
     const data = await response.json();
 
-    const samples = data.samples.filter(
-        s =>
-            s.distance_m != null &&
-            s.gear_label != null &&
-            s.power_w != null
+    const samples = data.samples;
+
+    console.log("First sample:", samples[0]);
+    console.log("Total samples:", samples.length);
+
+    const cleanSamples = samples.filter(
+        s => s.distance_m !== null &&
+             s.distance_m !== undefined &&
+             s.power_w !== null &&
+             s.power_w !== undefined &&
+             s.gear_label !== null &&
+             s.gear_label !== undefined &&
+             s.gear_label !== ""
     );
 
+    console.log("Clean samples:", cleanSamples.length);
+
     const trace = {
-
-        x: samples.map(
-            s => s.distance_m / 1000
-        ),
-
-        y: samples.map(
-            s => s.gear_label
-        ),
-
+        x: cleanSamples.map(s => s.distance_m / 1000),
+        y: cleanSamples.map(s => s.gear_label),
         mode: 'markers',
-
+        type: 'scatter',
         marker: {
-
             size: 6,
-
-            color: samples.map(
-                s => s.power_w
-            ),
-
+            color: cleanSamples.map(s => s.power_w),
+            colorscale: 'Viridis',
             colorbar: {
-                title: 'Power'
+                title: 'Power (W)'
             }
-
-        }
-
+        },
+        name: 'Gear state'
     };
 
     const layout = {
-
         title: 'Gear-State Regulation Across Ride',
-
         xaxis: {
             title: 'Distance (km)'
         },
-
         yaxis: {
-            title: 'Gear'
+            title: 'Gear',
+            type: 'category'
         }
-
     };
 
-    Plotly.newPlot(
-        'chart',
-        [trace],
-        layout
-    );
+    Plotly.newPlot('chart', [trace], layout);
 }
 
 loadRide();
-
 </script>
 
 </body>
