@@ -4,6 +4,8 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_DIR = PROJECT_ROOT / "processed"
 
+GARMIN_EPOCH = pd.Timestamp("1989-12-31 00:00:00")
+
 fit_files = list(PROCESSED_DIR.glob("*_fit_samples.csv"))
 
 if not fit_files:
@@ -25,11 +27,11 @@ for fit_file in fit_files:
 
     fit_df["timestamp_utc"] = pd.to_datetime(fit_df["timestamp_utc"])
 
-    fit_df["timestamp_unix"] = fit_df["timestamp_utc"].apply(
-        lambda x: int(x.timestamp())
-    )
+    fit_df["timestamp_fit"] = (
+        fit_df["timestamp_utc"] - GARMIN_EPOCH
+    ).dt.total_seconds().astype(int)
 
-    fit_df = fit_df.sort_values("timestamp_unix")
+    fit_df = fit_df.sort_values("timestamp_fit")
     di2_df = di2_df.sort_values("timestamp_fit")
 
     merged = pd.merge_asof(
@@ -42,8 +44,7 @@ for fit_file in fit_files:
             "rear_gear_index",
             "grade_percent"
         ]],
-        left_on="timestamp_unix",
-        right_on="timestamp_fit",
+        on="timestamp_fit",
         direction="nearest",
         tolerance=10
     )
