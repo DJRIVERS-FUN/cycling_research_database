@@ -5,6 +5,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_DIR = PROJECT_ROOT / "processed"
 
 GARMIN_EPOCH = pd.Timestamp("1989-12-31 00:00:00")
+DI2_OFFSET_SECONDS = 631116007
 
 fit_files = list(PROCESSED_DIR.glob("*_fit_samples.csv"))
 
@@ -28,8 +29,11 @@ for fit_file in fit_files:
     fit_df["timestamp_utc"] = pd.to_datetime(fit_df["timestamp_utc"])
 
     fit_df["timestamp_fit"] = (
-        fit_df["timestamp_utc"] - GARMIN_EPOCH
-    ).dt.total_seconds().astype(int)
+        (fit_df["timestamp_utc"] - GARMIN_EPOCH)
+        .dt.total_seconds()
+        .astype(int)
+        + DI2_OFFSET_SECONDS
+    )
 
     fit_df = fit_df.sort_values("timestamp_fit")
     di2_df = di2_df.sort_values("timestamp_fit")
