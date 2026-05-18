@@ -12,7 +12,6 @@ if not fit_files:
 for fit_file in fit_files:
 
     ride_id = fit_file.stem.replace("_fit_samples", "")
-
     di2_file = PROCESSED_DIR / f"{ride_id}_di2_samples.csv"
 
     if not di2_file.exists():
@@ -25,8 +24,9 @@ for fit_file in fit_files:
     di2_df = pd.read_csv(di2_file)
 
     fit_df["timestamp_utc"] = pd.to_datetime(fit_df["timestamp_utc"])
-fit_df["timestamp_unix"] = (
-    fit_df["timestamp_utc"].view("int64") // 10**9
+
+    fit_df["timestamp_unix"] = fit_df["timestamp_utc"].apply(
+        lambda x: int(x.timestamp())
     )
 
     fit_df = fit_df.sort_values("timestamp_unix")
@@ -49,7 +49,11 @@ fit_df["timestamp_unix"] = (
     )
 
     out_file = PROCESSED_DIR / f"{ride_id}_merged.csv"
-
     merged.to_csv(out_file, index=False)
 
+    matched = merged["gear_label"].notna().sum()
+
     print(f"Saved: {out_file}")
+    print(f"Gear matches: {matched} / {len(merged)}")
+
+print("\nAll merges complete.")
