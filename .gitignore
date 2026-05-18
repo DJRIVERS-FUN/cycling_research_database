@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw ride archives
+raw/
+
+# Processed local databases
+*.db
+*.sqlite
+*.parquet
+
+# FIT and GPX archives
+*.fit
+*.gpx
+
+# Excel exports
+*.xlsx
+*.xls
