@@ -25,8 +25,8 @@ for fit_file in fit_files:
     di2_df = pd.read_csv(di2_file)
 
     fit_df["timestamp_utc"] = pd.to_datetime(fit_df["timestamp_utc"])
-    fit_df["timestamp_unix"] = (
-        fit_df["timestamp_utc"].astype("int64") // 10**9
+fit_df["timestamp_unix"] = (
+    fit_df["timestamp_utc"].view("int64") // 10**9
     )
 
     fit_df = fit_df.sort_values("timestamp_unix")
